@@ -15,7 +15,7 @@ int main( int argc, char *argv[] )
 {
     Gtk::Main app( argc, argv );
 
-    Glib::RefPtr< Gtk::Builder > builder = Gtk::Builder::create_from_file( "../main_window.glade" );
+    Glib::RefPtr< Gtk::Builder > builder = Gtk::Builder::create_from_file( "main_window.glade" );
 
     builder->get_widget_derived( "MainWindow", camera_window );
     if ( camera_window )

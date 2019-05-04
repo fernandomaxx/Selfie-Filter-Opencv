@@ -2,38 +2,25 @@
 
 int Draw::drawing( cv::Mat *frame, int scale )
 {   
-    cv::Mat gray, smallImg;
-    cvtColor( *frame, gray, cv::COLOR_BGR2GRAY );
     double fx = 1 / scale;
-    cv::resize( gray, smallImg, cv::Size(), fx, fx, cv::INTER_LINEAR );
-    cv::equalizeHist( smallImg, smallImg );
-
-    cv::CascadeClassifier cascade, nestedCascade;
-    std::string imhpath = "cb1.png";
-    //cv::Mat img = cv::imread(imhpath, cv::IMREAD_UNCHANGED);
-    //if ( img.empty() )
-        //printf( "Error opening file %s\n", imhpath );
-    std::string cascadeName       = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";
-    nestedCascade.load( "/usr/share/opencv/haarcascades/haarcascade_eye_tree_eyeglasses.xml" ) ;
-    if( !cascade.load( cascadeName ) )
-    {
-        std::cerr << "ERROR: Could not load classifier cascade:\n " << cascadeName << std::endl;
-        return 0;
-    }
-    std::vector<cv::Rect> faces;
-    cv::Scalar color = cv::Scalar(255,0,0);
-    cascade.detectMultiScale( smallImg, faces,
-                        1.3, 2, 0
-                        //|CASCADE_FIND_BIGGEST_OBJECT
-                        //|CASCADE_DO_ROUGH_SEARCH
-                        |cv::CASCADE_SCALE_IMAGE,
-                        cv::Size(60, 60) );
-                
     cv::Rect r, nr;
+    std::vector<cv::Rect> faces;
+    Detect *detectface = new DetectFace();
+    //DetectFace detectface;
+    //std::unique_ptr< Detect > detectface = std::make_unique< DetectFace >();
+    cv::Scalar color = cv::Scalar(255,0,0);
+    cv::Mat gray, small_img, small_imgROI, png;
+
+    cvtColor( *frame, gray, cv::COLOR_BGR2GRAY );
+    cv::resize( gray, small_img, cv::Size(), fx, fx, cv::INTER_LINEAR );
+    cv::equalizeHist( small_img, small_img );
+    faces = detectface->run( small_img );
+
+    delete detectface;
+
     for ( size_t i = 0; i < faces.size(); i++ )
     {
             int radius;
-            cv::Mat smallImgROI;
             r = faces[i];
             cv::Point center;
 
@@ -43,7 +30,19 @@ int Draw::drawing( cv::Mat *frame, int scale )
                         cv::Point(cvRound((r.x + r.width-1)*scale), cvRound((r.y + r.height-1)*scale)),
                         color, 3, 8, 0);
                     
-            std::cout << cvRound((r.x + r.width-1)*scale) << " " << cvRound((r.y + r.height-1)*scale) << std::endl;
+            //std::cout << cvRound((r.x + r.width-1)*scale) << " " << cvRound((r.y + r.height-1)*scale) << std::endl;
+
+            Figure *hat = new Hat();
+            //Hat hat;
+            png = hat->getFigure();
+
+            if ( !hat->getFigure().empty() and r.y - r.height/2 > 0 )
+            {
+                std::cout << cvRound(( r.width-1)*scale) << " " << cvRound(( r.height-1)*scale) << std::endl;
+                resize( png, png, cv::Size( r.width, r.height - r.width/4 ), 0, 0, CV_INTER_LANCZOS4);
+                this->drawImage( *frame, png, r.x + 0, r.y - r.height/1.5 + 15 );
+            }
+            delete hat;
     }
 
     return 1;

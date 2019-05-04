@@ -10,13 +10,13 @@ LIBRARIES	:= `pkg-config gtkmm-3.0 --cflags --libs opencv`
 EXECUTABLE	:= main
 
 
-all: $(BIN)/$(EXECUTABLE)
+all: $(EXECUTABLE)
 
 run: clean all
 	clear
-	./$(BIN)/$(EXECUTABLE)
+	./$(EXECUTABLE)
 
-$(BIN)/$(EXECUTABLE): $(SRC)/*.cpp
+$(EXECUTABLE): $(SRC)/*.cpp
 	$(CXX) $(CXX_FLAGS) -I$(INCLUDE) -L$(LIB) $^ -o $@ $(LIBRARIES)
 
 clean:

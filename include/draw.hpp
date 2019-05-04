@@ -3,6 +3,10 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <string>
+#include <memory>
+
+#include "detect_face.hpp"
+#include "hat.hpp"
 
 class Draw {
 
